@@ -333,8 +333,8 @@ public class OldRRTrajectory implements Trajectory{
         double y = Main.toInches(node.y);
 
         StringBuilder sb = new StringBuilder();
-        if(Main.exportPanel.addDataType) sb.append("TrajectorySequence ");
-        sb.append(String.format("%s = drive.trajectorySequenceBuilder(new Pose2d(%.2f, %.2f, Math.toRadians(%.2f)))%n",getCurrentManager().name, x, -y, (node.robotHeading +90)));
+        if(Main.exportPanel.addDataType) sb.append("myBot");
+        sb.append(String.format(".runAction(myBot.getDrive().actionBuilder(new Pose2d(%.2f, y(%.2f), heading(%.2f)))%n", x, -y, (node.robotHeading +90)));
         //sort the markers
         List<Marker> markers = getCurrentManager().getMarkers();
         markers.sort(Comparator.comparingDouble(n -> n.displacement));
@@ -357,28 +357,28 @@ public class OldRRTrajectory implements Trajectory{
 
             switch (node.getType()){
                 case splineTo:
-                    sb.append(String.format(".splineTo(new Vector2d(%.2f, %.2f), Math.toRadians(%.2f))%n", x, -y, (node.splineHeading +90)));
+                    sb.append(String.format(".splineTo(new Vector2d(%.2f, y(%.2f)), heading(%.2f))%n", x, -y, (node.splineHeading +90)));
                     break;
                 case splineToSplineHeading:
-                    sb.append(String.format(".splineToSplineHeading(new Pose2d(%.2f, %.2f, Math.toRadians(%.2f)), Math.toRadians(%.2f))%n", x, -y, (node.robotHeading +90), (node.splineHeading +90)));
+                    sb.append(String.format(".splineToSplineHeading(new Pose2d(%.2f, y(%.2f), heading(%.2f)), heading(%.2f))%n", x, -y, (node.robotHeading +90), (node.splineHeading +90)));
                     break;
                 case splineToLinearHeading:
-                    sb.append(String.format(".splineToLinearHeading(new Pose2d(%.2f, %.2f, Math.toRadians(%.2f)), Math.toRadians(%.2f))%n", x, -y, (node.robotHeading +90), (node.splineHeading +90)));
+                    sb.append(String.format(".splineToLinearHeading(new Pose2d(%.2f, y(%.2f), heading(%.2f)), heading(%.2f))%n", x, -y, (node.robotHeading +90), (node.splineHeading +90)));
                     break;
                 case splineToConstantHeading:
-                    sb.append(String.format(".splineToConstantHeading(new Vector2d(%.2f, %.2f), Math.toRadians(%.2f))%n", x, -y, (node.splineHeading +90)));
+                    sb.append(String.format(".splineToConstantHeading(new Vector2d(%.2f, y(%.2f)), heading(%.2f))%n", x, -y, (node.splineHeading +90)));
                     break;
                 case lineTo:
-                    sb.append(String.format(".lineTo(new Vector2d(%.2f, %.2f))%n", x, -y));
+                    sb.append(String.format(".lineTo_(%.2f, y(%.2f)) //the new command is either lineToX or lineToY, x is %.2f, y is %.2f %n", x, -y, x, -y));
                     break;
                 case lineToSplineHeading:
-                    sb.append(String.format(".lineToSplineHeading(new Pose2d(%.2f, %.2f, Math.toRadians(%.2f)))%n", x, -y, (node.robotHeading +90)));
+                    sb.append(String.format(".lineTo_SplineHeading(%.2f, y(%.2f), heading(%.2f)) //the real command replaces the underscore with x and y, x is %.2f and y is %.2f, choose one to align with %n", x, -y, (node.robotHeading +90), x, -y));
                     break;
                 case lineToLinearHeading:
-                    sb.append(String.format(".lineToLinearHeading(new Pose2d(%.2f, %.2f, Math.toRadians(%.2f)))%n", x, -y, (node.robotHeading +90)));
+                    sb.append(String.format(".lineTo_LinearHeading(%.2f, y(%.2f), heading(%.2f)) //the real command replaces the underscore with x and y, x is %.2f and y is %.2f, choose one to align with %n", x, -y, (node.robotHeading +90), x, -y));
                     break;
                 case lineToConstantHeading:
-                    sb.append(String.format(".lineToConstantHeading(new Vector2d(%.2f, %.2f))%n", x, -y, (node.splineHeading +90)));
+                    sb.append(String.format(".lineTo_ConstantHeading(%.2f, y(%.2f)) //the real command replaces the underscore with x and y, x is %.2f and y is %.2f, choose one to align with %n", x, -y, (node.splineHeading +90), x, -y));
                     break;
                 case addTemporalMarker:
                     break;
@@ -391,7 +391,7 @@ public class OldRRTrajectory implements Trajectory{
                 prev = node.reversed;
             }
         }
-        sb.append(String.format(".build();%n"));
+        sb.append(String.format(".build());%n"));
         if(Main.exportPanel.addPoseEstimate) sb.append(String.format("drive.setPoseEstimate(%s.start());", getCurrentManager().name));
         return sb.toString();
     }
