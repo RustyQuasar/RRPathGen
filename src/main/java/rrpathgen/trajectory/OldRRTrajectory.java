@@ -333,8 +333,8 @@ public class OldRRTrajectory implements Trajectory{
         double y = Main.toInches(node.y);
 
         StringBuilder sb = new StringBuilder();
-        if(Main.exportPanel.addDataType) sb.append("myBot");
-        sb.append(String.format(".runAction(myBot.getDrive().actionBuilder(new Pose2d(%.2f, y(%.2f), heading(%.2f)))%n", x, -y, (node.robotHeading +90)));
+        if(Main.exportPanel.addDataType) {}
+        sb.append(String.format("Pose2d startPose = new Pose2d(%.2f, y(%.2f), heading(%.2f));%n odometry = new Odometry(hardwareMap, startPose);%n sequence = drive.actionBuilder(startPose)%n", x, -y, (node.robotHeading +90)));
         //sort the markers
         List<Marker> markers = getCurrentManager().getMarkers();
         markers.sort(Comparator.comparingDouble(n -> n.displacement));
@@ -391,7 +391,7 @@ public class OldRRTrajectory implements Trajectory{
                 prev = node.reversed;
             }
         }
-        sb.append(String.format(".build());%n"));
+        sb.append(String.format(".build();%n"));
         if(Main.exportPanel.addPoseEstimate) sb.append(String.format("drive.setPoseEstimate(%s.start());", getCurrentManager().name));
         return sb.toString();
     }
